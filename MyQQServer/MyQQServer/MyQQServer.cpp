@@ -52,7 +52,7 @@ BOOL CMyQQServerApp::InitInstance()
 
 	CWinApp::InitInstance();
 
-
+	// 套接字相关初始化
 	if (!AfxSocketInit())
 	{
 		AfxMessageBox(IDP_SOCKETS_INIT_FAILED);

@@ -52,7 +52,7 @@ BOOL CMyQQClientApp::InitInstance()
 
 	CWinApp::InitInstance();
 
-	// 进行初始化
+	// 进行Socket使用前的初始化
 	if (!AfxSocketInit())
 	{
 		AfxMessageBox(IDP_SOCKETS_INIT_FAILED);
@@ -78,6 +78,8 @@ BOOL CMyQQClientApp::InitInstance()
 	// 例如修改为公司或组织名
 	SetRegistryKey(_T("应用程序向导生成的本地应用程序"));
 
+
+	// 初始构建一个登录用的对话框
 	CMyQQClientDlg dlg;
 	m_pMainWnd = &dlg;
 	INT_PTR nResponse = dlg.DoModal();

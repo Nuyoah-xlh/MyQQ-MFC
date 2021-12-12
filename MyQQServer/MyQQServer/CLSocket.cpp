@@ -28,7 +28,7 @@ CLSocket::~CLSocket()
 void CLSocket::OnAccept(int nErrorCode)
 {
 	CSocket::OnAccept(nErrorCode);
-	m_pDlg->OnAccept();  ////调用主对话框类中的相应函数
+	m_pDlg->OnAccept();  //调用主对话框类中的相应函数
 }
 
 IMPLEMENT_DYNAMIC(CLSocket, CSocket)

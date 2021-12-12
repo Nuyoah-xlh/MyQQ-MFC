@@ -18,9 +18,9 @@ public:
 //Attributes
 public:
 	CMyQQServerDlg* m_pDlg;         //主对话框类指针变量
-	CSocketFile* m_pFile;   //CSocketFile对象的指针变量
-	CArchive* m_pArchiveIn; //用于输入的CArchive对象的指针变量
-	CArchive* m_pArchiveOut;//用于输出的CArchive对象的指针变量
+	CSocketFile* m_pFile;         //CSocketFile对象的指针变量
+	CArchive* m_pArchiveIn;       //用于输入的CArchive对象的指针变量
+	CArchive* m_pArchiveOut;      //用于输出的CArchive对象的指针变量
 
 //Operations
 public:
@@ -29,8 +29,8 @@ public:
 	void ReceiveMessage(CMsg* pMsg); //接收消息
 
 //Overridable callbacks
-//可重载的回调函数，当套接字收到数据时，自动调用此函数
  protected:
+	 // 可重载的回调函数，当套接字收到数据时，自动调用此函数
 	virtual void OnReceive(int nErrorCode);
 };
 

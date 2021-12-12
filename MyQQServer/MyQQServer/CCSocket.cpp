@@ -19,11 +19,11 @@ class CMyQQServerDlg;
 //构造函数
 CCSocket::CCSocket(CMyQQServerDlg* pDlg)
 {
+	// 初始化
 	m_pDlg = pDlg;
 	m_pFile = NULL;
 	m_pArchiveIn = NULL;
 	m_pArchiveOut = NULL;
-	//Initialize();
 }
 
 //析构函数
@@ -50,7 +50,6 @@ void CCSocket::sendMessage(CMsg* pMsg)
 {
 	if (m_pArchiveOut != NULL)
 	{
-		AfxMessageBox("send");
 		//调用消息类的序列化函数，发送消息
 		pMsg->Serialize(*m_pArchiveOut);
 		//将CArchive对象中的数据强制性写入CSocketFile文件中
@@ -68,10 +67,6 @@ void CCSocket::ReceiveMessage(CMsg* pMsg)
 //OnReceive事件处理函数，当套接字收到数据时，激发此事件
 void CCSocket::OnReceive(int nErrorCode)
 {
-	//CSocket::OnReceive(nErrorCode);
-	//调用主对话框类中的相应函数来处理
-	// AfxMessageBox(nErrorCode);
-
 	if (nErrorCode == 0) m_pDlg->OnReceive(this);
 	AsyncSelect(FD_READ);
 	CSocket::OnReceive(nErrorCode);

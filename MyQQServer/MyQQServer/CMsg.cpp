@@ -16,7 +16,7 @@ CMsg::CMsg()
 {
 	recv_name = _T("");
 	m_strText = _T("");         //初始化
-	m_bClose = 0;
+	type = 0;
 }
 
 //析构函数
@@ -31,7 +31,7 @@ void CMsg::Serialize(CArchive& ar)
 	if (ar.IsStoring())
 	{
 		//AfxMessageBox("store");
-		ar << (WORD)m_bClose;
+		ar << (WORD)type;
 		ar << m_strText;
 		ar << recv_name;
 	}
@@ -39,7 +39,7 @@ void CMsg::Serialize(CArchive& ar)
 		//AfxMessageBox("store2");
 		WORD wd;
 		ar >> wd;
-		m_bClose = (INT)wd;
+		type = (INT)wd;
 		ar >> m_strText;
 		ar >> recv_name;
 	}

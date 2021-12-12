@@ -18,7 +18,7 @@ public:
 	CString recv_name;		// 接受者名
 	CString m_strText;      //字符串成员
 	//消息类型 ，0表示群聊消息/连接消息，1为断开连接消息，2为私聊消息
-	INT m_bClose;
+	INT type;
 
 //Implementation
 public:

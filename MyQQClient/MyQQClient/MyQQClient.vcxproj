@@ -215,10 +215,16 @@
     <None Include="res\MyQQClient.rc2" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="res\01.ico" />
+    <Image Include="res\02.ico" />
+    <Image Include="res\03.ico" />
+    <Image Include="res\04.ico" />
+    <Image Include="res\05.ico" />
     <Image Include="res\bitmap1.bmp" />
     <Image Include="res\bitmap2.bmp" />
     <Image Include="res\bk.bmp" />
     <Image Include="res\bk2.bmp" />
+    <Image Include="res\btk.bmp" />
     <Image Include="res\HEAD.bmp" />
     <Image Include="res\HEAD1.bmp" />
     <Image Include="res\HEAD1.ico" />
@@ -233,7 +239,10 @@
     <Image Include="res\HEAD6.bmp" />
     <Image Include="res\HEAD6.ico" />
     <Image Include="res\icon1.ico" />
+    <Image Include="res\index_head.bmp" />
     <Image Include="res\MyQQClient.ico" />
+    <Image Include="res\qq.bmp" />
+    <Image Include="res\QQ.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

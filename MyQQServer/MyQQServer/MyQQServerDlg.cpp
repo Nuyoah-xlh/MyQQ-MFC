@@ -16,7 +16,6 @@
 
 
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
-
 class CAboutDlg : public CDialogEx
 {
 public:
@@ -56,8 +55,10 @@ CMyQQServerDlg::CMyQQServerDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_MYQQSERVER_DIALOG, pParent)
 	, listen_port(0)
 {
+	// 变量初始化
 	listen_port = 0;
-	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+	// 加载程序ico图标
+	m_hIcon = AfxGetApp()->LoadIcon(IDI_ICON_SERVER);
 	m_pLSocket = NULL;
 }
 
@@ -82,7 +83,6 @@ END_MESSAGE_MAP()
 
 
 // CMyQQServerDlg 消息处理程序
-
 BOOL CMyQQServerDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
@@ -107,13 +107,13 @@ BOOL CMyQQServerDlg::OnInitDialog()
 		}
 	}
 
-	// 设置此对话框的图标。  当应用程序主窗口不是对话框时，框架将自动
-	//  执行此操作
+	// TODO: 在此添加额外的初始化代码
+	// 设置此对话框的图标
 	SetIcon(m_hIcon, TRUE);			// 设置大图标
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
-	// TODO: 在此添加额外的初始化代码
 	listen_port = 8000;
+
 	UpdateData(FALSE);
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
@@ -135,7 +135,6 @@ void CMyQQServerDlg::OnSysCommand(UINT nID, LPARAM lParam)
 // 如果向对话框添加最小化按钮，则需要下面的代码
 //  来绘制该图标。  对于使用文档/视图模型的 MFC 应用程序，
 //  这将由框架自动完成。
-
 void CMyQQServerDlg::OnPaint()
 {
 	if (IsIconic())
@@ -157,12 +156,24 @@ void CMyQQServerDlg::OnPaint()
 	}
 	else
 	{
-		CDialogEx::OnPaint();
+		// CDialogEx::OnPaint();
+		// 绘制背景图
+		CPaintDC dc(this);
+		CRect rc;
+		GetClientRect(&rc);
+		CDC dcMem;
+		dcMem.CreateCompatibleDC(&dc);
+		CBitmap bmpBackground;
+		bmpBackground.LoadBitmap(IDB_BK);
+
+		BITMAP bitmap;
+		bmpBackground.GetBitmap(&bitmap);
+		CBitmap* pbmpPri = dcMem.SelectObject(&bmpBackground);
+		dc.StretchBlt(0, 0, rc.Width(), rc.Height(), &dcMem, 0, 0, bitmap.bmWidth, bitmap.bmHeight, SRCCOPY);
 	}
 }
 
-//当用户拖动最小化窗口时系统调用此函数取得光标
-//显示。
+//当用户拖动最小化窗口时系统调用此函数取得光标显示
 HCURSOR CMyQQServerDlg::OnQueryDragIcon()
 {
 	return static_cast<HCURSOR>(m_hIcon);
@@ -173,7 +184,7 @@ HCURSOR CMyQQServerDlg::OnQueryDragIcon()
 void CMyQQServerDlg::OnBnClickedButtonOn()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	UpdateData(TRUE);    //获得用户输入
+	UpdateData(TRUE);    //获得控件内容
 	//创建侦听套接字对象
 	m_pLSocket = new CLSocket(this);
 	//创建监听套接字的底层套接字，在用户指定的端口上侦听
@@ -192,7 +203,7 @@ void CMyQQServerDlg::OnBnClickedButtonOn()
 		AfxMessageBox("启动监听错误");
 		return;
 	}
-	msg_list.AddString("启动！");
+	msg_list.AddString("服务器已启动...");
 }
 
 
@@ -200,33 +211,30 @@ void CMyQQServerDlg::OnBnClickedButtonOff()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	CMsg  msg;
+	msg.type = 1;
+	msg.m_strText = _T("群聊");
 	msg.m_strText = "服务器终止服务!";
-	//
-	delete m_pLSocket;
-	m_pLSocket = NULL;
-	//对连接列表进行处理
+	//对连接列表进行发送消息
 	while (!m_connList.IsEmpty())
 	{
 		//向每一个连接的客户机发送"服务器终止服务！"的消息
 		//并逐个删除已建立的连接
-		CCSocket* pSocket
-			= (CCSocket*)m_connList.RemoveHead();
+		CCSocket* pSocket = (CCSocket*)m_connList.RemoveHead();
 		pSocket->sendMessage(&msg);
 		delete pSocket;
+		pSocket = NULL;
 	}
-	CString strTemp="服务器未开启";
+	delete m_pLSocket;
+	m_pLSocket = NULL;
+	CString strTemp="服务器未开启...";
 	user_num.SetWindowText(strTemp);
-	UpdateData(TRUE);
-	//CDialog::OnOK();
-	//清除列表框
-	//while (msg_list.GetCount() != 0)
-		//msg_list.DeleteString(0);
+	UpdateData(FALSE);
 
 	msg_list.AddString("服务器已关闭！！");
 
 }
 
-
+// 处理连接信息
 void CMyQQServerDlg::OnAccept() {
 	//创建用于与客户端连接并交换数据的套接字对象
 	CCSocket* pSocket = new CCSocket(this);
@@ -234,44 +242,70 @@ void CMyQQServerDlg::OnAccept() {
 	{
 		//对连接套接字初始化
 		pSocket->Initialize();
+		// 加入连接列表
 		m_connList.AddTail(pSocket);
-		// user_list.AddString
-		//更新在线人数
+		// 更新在线人数
 		CString strTemp;
-		strTemp.Format("在线人数：%d", m_connList.GetCount());
+		strTemp.Format("在线人数：%d人", m_connList.GetCount());
 		user_num.SetWindowText(strTemp);
 	}
 	else delete pSocket;
 
 }
 
+// 处理客户机发送的消息
 void CMyQQServerDlg::OnReceive(CCSocket* pSocket) {
-	static CMsg  msg;
-	 AfxMessageBox("receive");
+	// 存储消息
+	static CMsg msg;
 	do {
 		//接收客户发来的消息
 		pSocket->ReceiveMessage(&msg);
-		if (msg.m_bClose == 0) {
+		// 连接成功的消息
+		if (msg.type == 0) {
 			//将客户的信息显示在服务器的对话框中
 			user_list.AddString(msg.m_strText);
-			//向所有客户返回该客户发来的消息
-			msg.m_strText = msg.m_strText + "已连接...";
+			// 获取当前时间
+			CTime tm = CTime::GetCurrentTime();
+			CString tm_str = tm.Format("%X ");
+			msg.m_strText = tm_str+msg.m_strText + "已成功连接...";
+			// 显示内容
 			msg_list.AddString(msg.m_strText);
+			//向所有客户返回该客户发来的消息
+			for (int i = 0; i < user_list.GetCount(); i++) {
+				CString temp;
+				user_list.GetText(i, temp);
+				AfxMessageBox(temp);
+				msg.type = 0;
+				msg.m_strText = temp;
+				msg.recv_name = temp;
+				backClients(&msg);
+			}
+		}
+		// 普通的群聊消息
+		else if (msg.type == 1) {
+			// 直接转发
 			backClients(&msg);
 		}
-		//如果客户机关闭,将与该客户机的连接从连接列表中删除
-		else if (msg.m_bClose == 1) {
-			AfxMessageBox("www");
-			msg_list.AddString(msg.recv_name);
-			backClients(&msg);
-		}
-		else if (msg.m_bClose==2)
+		// 连接断开消息
+		else if (msg.type ==2)
 		{
+			// 获取当前时间
+			CTime tm = CTime::GetCurrentTime();
+			CString tm_str = tm.Format("%X ");
+			for (int i = 0; i < user_list.GetCount(); i++) {
+				CString temp;
+				user_list.GetText(i, temp);
+				if (temp == msg.m_strText) {
+					user_list.DeleteString(i);
+					break;
+				}
+			}
+			msg.m_strText = tm_str + msg.m_strText + "已断开连接...";
 			//将客户的信息显示在服务器的对话框中
 			msg_list.AddString(msg.m_strText);
 			//向所有客户返回该客户发来的消息
 			backClients(&msg);
-			pSocket->Close();
+			//pSocket->Close();
 			POSITION pos, temp;
 			for (pos = m_connList.GetHeadPosition(); pos != NULL;)
 			{
@@ -285,7 +319,7 @@ void CMyQQServerDlg::OnReceive(CCSocket* pSocket) {
 					m_connList.RemoveAt(temp);
 					CString strTemp;
 					//更新在线人数
-					strTemp.Format("在线人数：%d", m_connList.GetCount());
+					strTemp.Format("在线人数：%d人", m_connList.GetCount());
 					user_num.SetWindowText(strTemp);
 					break;
 				}
@@ -293,15 +327,22 @@ void CMyQQServerDlg::OnReceive(CCSocket* pSocket) {
 			delete pSocket;
 			break;
 		}
+		else if (msg.type == 3) {
+			//向所有客户返回该客户发来的消息
+			backClients(&msg);
+		}
 	} while (!pSocket->m_pArchiveIn->IsBufferEmpty());
 }
 
 void CMyQQServerDlg::backClients(CMsg* pMsg) {
+	// 遍历连接列表逐个转发
 	for (POSITION pos = m_connList.GetHeadPosition(); pos != NULL;)
 	{
-		AfxMessageBox(pMsg->m_strText);
 		//获得连接列表的成员
 		CCSocket* pSocket= (CCSocket*)m_connList.GetNext(pos);
+		if (pSocket == NULL) {
+			continue;
+		}
 		pSocket->sendMessage(pMsg);
 	}
 }

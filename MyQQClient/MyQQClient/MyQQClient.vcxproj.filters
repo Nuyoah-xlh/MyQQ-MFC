@@ -137,5 +137,32 @@
     <Image Include="res\bk2.bmp">
       <Filter>资源文件</Filter>
     </Image>
+    <Image Include="res\QQ.ico">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\btk.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\qq.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\01.ico">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\02.ico">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\03.ico">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\04.ico">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\05.ico">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\index_head.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
   </ItemGroup>
 </Project>

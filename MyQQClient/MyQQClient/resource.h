@@ -7,17 +7,21 @@
 #define IDS_ABOUTBOX                    101
 #define IDD_MYQQCLIENT_DIALOG           102
 #define IDP_SOCKETS_INIT_FAILED         103
-#define IDR_MAINFRAME                   128
 #define IDD_INDEX                       130
-#define IDI_HEAD1                       144
-#define IDI_HEAD2                       145
-#define IDI_HEAD3                       146
-#define IDI_HEAD4                       147
-#define IDI_HEAD5                       148
-#define IDI_HEAD6                       149
 #define IDI_ICON7                       150
+#define IDI_HEAD2                       150
 #define IDB_INDEX_BK                    151
 #define IDD_CHAT_DLG                    154
+#define IDR_MAINFRAME                   156
+#define IDB_BTK                         159
+#define IDB_BITMAP1                     161
+#define IDB_LOGIN_HEAD                  165
+#define IDI_HEAD1                       166
+#define IDI_HEAD3                       167
+#define IDI_HEAD4                       168
+#define IDI_HEAD5                       169
+#define IDI_HEAD6                       170
+#define IDB_MYHEAD                      171
 #define IDC_USER                        1000
 #define IDC_BUTTON1                     1001
 #define IDC_SERVER_ADDR                 1002
@@ -33,14 +37,16 @@
 #define IDC_BTN_CANCEL                  1028
 #define IDC_MYNAME                      1029
 #define IDC_BTN_CHAT_OFF                1031
+#define IDC_BUTTON_HEAD                 1032
+#define IDC_INDEX_HEAD                  1033
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        156
+#define _APS_NEXT_RESOURCE_VALUE        172
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1032
+#define _APS_NEXT_CONTROL_VALUE         1034
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

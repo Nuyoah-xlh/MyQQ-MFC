@@ -1,5 +1,5 @@
 ﻿// CChatDlg.cpp: 实现文件
-//
+
 
 #include "pch.h"
 #include "MyQQClient.h"
@@ -9,7 +9,6 @@
 
 
 // CChatDlg 对话框
-
 IMPLEMENT_DYNAMIC(CChatDlg, CDialogEx)
 
 CChatDlg::CChatDlg(CWnd* pParent /*=nullptr*/)
@@ -26,11 +25,8 @@ CChatDlg::~CChatDlg()
 void CChatDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
-	//  DDX_Text(pDX, IDC_MYNAME, friend_name);
 	DDX_Text(pDX, IDC_EDIT_SEND, msg_send);
 	DDX_Control(pDX, IDC_LIST_RECV, list_recv);
-	//  DDX_Control(pDX, IDC_BTN_CANCEL, btn_send);
-	//  DDX_Control(pDX, IDC_BTN_SEND, btn_send);
 	DDX_Control(pDX, IDC_BTN_SEND, btn_send);
 	DDX_Control(pDX, IDC_BTN_CANCEL, btn_cancel);
 	DDX_Control(pDX, IDC_MYNAME, friend_name);
@@ -55,57 +51,54 @@ void CChatDlg::OnLButtonDown(UINT nFlags, CPoint point)
 	CDialogEx::OnLButtonDown(nFlags, point);
 }
 
+// 点击右上角关闭，则默认隐藏窗口，但不摧毁，方便下次开启
 void CChatDlg::OnBnClickedBtnChatOff()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	for (int i = 0; i < MAX_WINDOW_COUNT;)
+	for (int i = 0; i < MAX_WINDOW_COUNT;i++)
 	{
 		if (((Index*)GetParent())->m_chatDlg[i] == NULL)
 		{
-			i++;
+			continue;
 		}
 		else
 		{
+			// 匹配该句柄
 			if (((Index*)GetParent())->m_chatDlg[i]->m_hWnd == m_hWnd)
 			{
-				// delete ((Index*)GetParent())->m_chatDlg[i];
-				//AfxMessageBox("00");
+				// 隐藏本窗口
 				((Index*)GetParent())->m_chatDlg[i]->ShowWindow(SW_HIDE);
 				break;
-			}
-			else
-			{
-				i++;
 			}
 		}
 	}
 	//DestroyWindow();
 }
 
-
+// 点击发送触发函数
 void CChatDlg::OnBnClickedBtnSend()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	UpdateData(TRUE);       //取回用户输入的信息
+	//取回用户输入的信息
+	UpdateData(TRUE);       
 	if (!msg_send.IsEmpty())
 	{
+		// 获取当前时间
 		CTime tm = CTime::GetCurrentTime();
-		CString tm_str = tm.Format("%X  ");
-		AfxMessageBox("frinedn");
-		//AfxMessageBox(friend_name);
+		CString tm_str = tm.Format("%X ");
 		CString* recv_name = (CString*)GetDlgItem(IDC_MYNAME);
+		// 群聊消息
 		if (i_index==0) {
-			AfxMessageBox("11");
 			tm_str = tm_str + ((Index*)GetParent())->main_dlg->user_name + ": "+msg_send;
 			((Index*)GetParent())->sendMessage(tm_str,tm_str, 1);
 		}
+		// 私聊消息
 		else {
-			AfxMessageBox("00");
-			tm_str = "()" + ((Index*)GetParent())->main_dlg->user_name + ")" + tm_str;
+			tm_str = "tm_str"+ ((Index*)GetParent())->main_dlg->user_name +": "+ msg_send;
+			((Index*)GetParent())->sendMessage(frind_name_text, tm_str, 3);
 		}
-		//list_recv.AddString("111"+tm_str +msg_send);
-		//AfxMessageBox(msg_send);
 		
+		// 将编辑栏恢复为空
 		SetDlgItemText(IDC_EDIT_SEND, _T(""));
 	}
 }

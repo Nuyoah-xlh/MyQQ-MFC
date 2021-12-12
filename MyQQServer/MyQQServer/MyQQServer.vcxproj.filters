@@ -77,5 +77,11 @@
     <Image Include="res\MyQQServer.ico">
       <Filter>资源文件</Filter>
     </Image>
+    <Image Include="res\btk.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\server.ico">
+      <Filter>资源文件</Filter>
+    </Image>
   </ItemGroup>
 </Project>

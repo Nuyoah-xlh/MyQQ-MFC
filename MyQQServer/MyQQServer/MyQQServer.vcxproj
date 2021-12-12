@@ -213,7 +213,9 @@
     <None Include="res\MyQQServer.rc2" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="res\btk.bmp" />
     <Image Include="res\MyQQServer.ico" />
+    <Image Include="res\server.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

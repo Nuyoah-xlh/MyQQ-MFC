@@ -18,7 +18,7 @@ public:
 	// 标准构造函数
 	CMyQQClientDlg(CWnd* pParent = nullptr);	
 	// 发送消息的函数，recvname：接收方用户名；strText:消息内容；st:消息类型，0为连接消息，1为群聊消息，2为连接断开消息，3为私聊消息；
-	void sendMessage(CString& recvname, CString& strText, int st);
+	void sendMessage(CString& recvname, CString& sendname, CString& strText, int st);
 	// 销毁Index窗口
 	void destory();
 	// 点击登录按钮触发函数
@@ -71,4 +71,6 @@ public:
 
 	//登录成功后的默认对话框,非模态对话框
 	Index* dlg_index;	
+	CString pwd;
+	afx_msg void OnBnClickedButton2();
 };

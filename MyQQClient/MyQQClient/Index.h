@@ -23,7 +23,7 @@ public:
 	virtual BOOL OnInitDialog();
 
 	// 发送消息时调用
-	void sendMessage(CString& recvname, CString& strText, int st);
+	void sendMessage(CString& recvname, CString& sendname, CString& strText, int st);
 
 	virtual void OnClose();
 
@@ -38,7 +38,8 @@ public:
 	int dlg_num;
 	// 其所属的父窗口
 	CMyQQClientDlg* main_dlg;
-
+	// 程序的ico图标
+	HICON m_hIcon;
 	// 好友列表
 	CListCtrl frind_list;
 	// 头像列表

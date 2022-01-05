@@ -57,6 +57,10 @@ CMyQQServerDlg::CMyQQServerDlg(CWnd* pParent /*=nullptr*/)
 {
 	// 变量初始化
 	listen_port = 0;
+	for (int i = 0; i < 200; i++) {
+		users[i] = NULL;
+	}
+	index = 0;
 	// 加载程序ico图标
 	m_hIcon = AfxGetApp()->LoadIcon(IDI_ICON_SERVER);
 	m_pLSocket = NULL;
@@ -115,6 +119,9 @@ BOOL CMyQQServerDlg::OnInitDialog()
 	listen_port = 8000;
 
 	UpdateData(FALSE);
+
+	GetDlgItem(IDC_EDIT_PORT)->EnableWindow(FALSE);
+	GetDlgItem(IDC_BUTTON_OFF)->EnableWindow(FALSE);
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -185,6 +192,8 @@ void CMyQQServerDlg::OnBnClickedButtonOn()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	UpdateData(TRUE);    //获得控件内容
+	GetDlgItem(IDC_BUTTON_ON)->EnableWindow(FALSE);
+	GetDlgItem(IDC_BUTTON_OFF)->EnableWindow(TRUE);
 	//创建侦听套接字对象
 	m_pLSocket = new CLSocket(this);
 	//创建监听套接字的底层套接字，在用户指定的端口上侦听
@@ -204,15 +213,19 @@ void CMyQQServerDlg::OnBnClickedButtonOn()
 		return;
 	}
 	msg_list.AddString("服务器已启动...");
+	CString strTemp = "在线人数：0人";
+	user_num.SetWindowText(strTemp);
+	UpdateData(FALSE);
 }
 
 
 void CMyQQServerDlg::OnBnClickedButtonOff()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	GetDlgItem(IDC_BUTTON_OFF)->EnableWindow(FALSE);
+	GetDlgItem(IDC_BUTTON_ON)->EnableWindow(TRUE);
 	CMsg  msg;
 	msg.type = 1;
-	msg.m_strText = _T("群聊");
 	msg.m_strText = "服务器终止服务!";
 	//对连接列表进行发送消息
 	while (!m_connList.IsEmpty())
@@ -260,25 +273,75 @@ void CMyQQServerDlg::OnReceive(CCSocket* pSocket) {
 	do {
 		//接收客户发来的消息
 		pSocket->ReceiveMessage(&msg);
-		// 连接成功的消息
-		if (msg.type == 0) {
-			//将客户的信息显示在服务器的对话框中
-			user_list.AddString(msg.m_strText);
-			// 获取当前时间
-			CTime tm = CTime::GetCurrentTime();
-			CString tm_str = tm.Format("%X ");
-			msg.m_strText = tm_str+msg.m_strText + "已成功连接...";
-			// 显示内容
-			msg_list.AddString(msg.m_strText);
-			//向所有客户返回该客户发来的消息
-			for (int i = 0; i < user_list.GetCount(); i++) {
-				CString temp;
-				user_list.GetText(i, temp);
-				AfxMessageBox(temp);
-				msg.type = 0;
-				msg.m_strText = temp;
-				msg.recv_name = temp;
+		// 注册的消息
+		if (msg.type == 5) {
+			for (int i = 0; i < 200; i++) {
+				if (users[i] == NULL) {
+					continue;
+				}
+				else {
+					// 已经存在
+					if (users[i]->user_name == msg.recv_name) {
+						msg.type = 6;
+						backClients(&msg); 
+						return;
+					}
+				}
+			}
+			// 注册成功
+			users[index] = new User();
+			users[index]->user_name = msg.recv_name;
+			users[index]->pwd = msg.sendname;
+			index++;
+			msg.type = 7;
+			backClients(&msg);
+		}
+		// 登录消息
+		else if (msg.type == 0) {
+			for (int i = 0; i < 200; i++) {
+				if (users[i] == NULL) {
+					continue;
+				}
+				else {
+					// 已经存在
+					if (users[i]->user_name == msg.recv_name) {
+						// 登录成功
+						if (users[i]->pwd == msg.sendname) {
+							//将客户的信息显示在服务器的对话框中
+							user_list.AddString(msg.m_strText);
+							// 获取当前时间
+							CTime tm = CTime::GetCurrentTime();
+							CString tm_str = tm.Format("%X ");
+							msg.m_strText = tm_str + msg.m_strText + "已成功连接...";
+							// 显示内容
+							msg_list.AddString(msg.m_strText);
+							// 登录成功，同时更新所有客户端的用户列表                                    
+							for (int i = 0; i < user_list.GetCount(); i++) {
+								CString temp;
+								user_list.GetText(i, temp);
+								msg.type = 8;
+								msg.m_strText = temp;
+								msg.recv_name = temp;
+								msg.sendname = temp;
+								backClients(&msg);
+							}
+							break;
+						}
+						// 用户存在但密码错误
+						else {
+							msg.type = 9;
+							//向所有客户返回消息                                    
+							backClients(&msg);
+							return;
+						}
+					}
+				}
+			}
+			// 用户未注册
+			if (msg.type == 0) {
+				msg.type = 10;
 				backClients(&msg);
+				return;
 			}
 		}
 		// 普通的群聊消息
@@ -327,8 +390,8 @@ void CMyQQServerDlg::OnReceive(CCSocket* pSocket) {
 			delete pSocket;
 			break;
 		}
-		else if (msg.type == 3) {
-			//向所有客户返回该客户发来的消息
+		else if (msg.type == 3||msg.type==4) {
+			// 向所有客户返回该客户发来的消息
 			backClients(&msg);
 		}
 	} while (!pSocket->m_pArchiveIn->IsBufferEmpty());

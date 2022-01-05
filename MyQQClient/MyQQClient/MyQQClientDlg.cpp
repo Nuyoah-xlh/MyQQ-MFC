@@ -58,6 +58,7 @@ CMyQQClientDlg::CMyQQClientDlg(CWnd* pParent /*=nullptr*/)
 	, server_addr(_T(""))
 	, server_port(0)
 	, user_name(_T(""))
+	, pwd(_T(""))
 {
 
 	// 变量初始化
@@ -84,6 +85,7 @@ void CMyQQClientDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_SERVER_PORT, server_port);
 	DDX_Text(pDX, IDC_USER, user_name);
 	DDX_Control(pDX, IDC_BUTTON1, login);
+	DDX_Text(pDX, IDC_PWD, pwd);
 }
 
 BEGIN_MESSAGE_MAP(CMyQQClientDlg, CDialogEx)
@@ -91,6 +93,7 @@ BEGIN_MESSAGE_MAP(CMyQQClientDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_BUTTON1, &CMyQQClientDlg::OnBnClickedButton1)
+	ON_BN_CLICKED(IDC_BUTTON2, &CMyQQClientDlg::OnBnClickedButton2)
 END_MESSAGE_MAP()
 
 
@@ -138,6 +141,9 @@ BOOL CMyQQClientDlg::OnInitDialog()
 
 	// true为将控件的值赋给变量，false为将变量的值赋给控件
 	UpdateData(FALSE);
+
+	GetDlgItem(IDC_SERVER_PORT)->EnableWindow(FALSE);
+	GetDlgItem(IDC_SERVER_ADDR)->EnableWindow(FALSE);
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -209,61 +215,66 @@ void CMyQQClientDlg::OnBnClickedButton1()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	// 创建index对话框
-	dlg_index = new Index(this);
+	// dlg_index = new Index(this);
 	// 获取用户输入
 	UpdateData(TRUE);
-	//创建套接字对象
-	m_pSocket = new CCSocket(this); 
-	// 创建套接字对象的底层套接字
-	if (!m_pSocket->Create())       
-	{
-		delete m_pSocket;    //错误处理
-		m_pSocket = NULL;
-		AfxMessageBox("套接字创建错误！");
+	if (user_name.GetLength() == 0||pwd.GetLength()==0) {
+		AfxMessageBox("请完整填写信息！");
 		return;
 	}
-	if (!m_pSocket->Connect(server_addr, server_port))
-	{
-		delete m_pSocket;    //错误处理
-		m_pSocket = NULL;
-		AfxMessageBox("无法连接服务器错误！");
-		return;
+	if (m_pSocket == NULL && m_pFile == NULL) {
+		//创建套接字对象
+		m_pSocket = new CCSocket(this);
+		// 创建套接字对象的底层套接字
+		if (!m_pSocket->Create())
+		{
+			delete m_pSocket;    //错误处理
+			m_pSocket = NULL;
+			AfxMessageBox("套接字创建错误！");
+			return;
+		}
+		if (!m_pSocket->Connect(server_addr, server_port))
+		{
+			delete m_pSocket;    //错误处理
+			m_pSocket = NULL;
+			AfxMessageBox("无法连接服务器错误！");
+			return;
+		}
+		// 创建CSocketFile类对象
+		m_pFile = new CSocketFile(m_pSocket);
+		//分别创建用于输入和用于输出的CArchive类对象
+		m_pArchiveIn = new CArchive(m_pFile, CArchive::load);
+		m_pArchiveOut = new CArchive(m_pFile, CArchive::store);
 	}
-	
-	// 创建CSocketFile类对象
-	m_pFile = new CSocketFile(m_pSocket);
-	//分别创建用于输入和用于输出的CArchive类对象
-	m_pArchiveIn = new CArchive(m_pFile, CArchive::load);
-	m_pArchiveOut = new CArchive(m_pFile, CArchive::store);
-	// 连接成功，则发送消息，内容为本机用户名，接受者可忽略，类型为连接成功消息
-	sendMessage(user_name,user_name, 0);
+	// 连接成功，则发送消息，内容为本机用户名，接受者可忽略，类型为请求登录消息
+	sendMessage(user_name, pwd,user_name, 0);
 	// 隐藏本窗口
-	ShowWindow(SW_HIDE);
+	// ShowWindow(SW_HIDE);
 	// 创建Index对话框
-	dlg_index = new Index(this);
-	INT_PTR nResponse = dlg_index->Create(IDD_INDEX);
-	dlg_index->ShowWindow(SW_SHOWNORMAL);
+	// dlg_index = new Index(this);
+	// INT_PTR nResponse = dlg_index->Create(IDD_INDEX);
+	// dlg_index->ShowWindow(SW_SHOWNORMAL);
 	// 创建成功与否的相关处理
-	if (nResponse == IDOK)
-	{
+	// if (nResponse == IDOK)
+	// {
 		// TODO: 在此放置处理何时用
 		//  “确定”来关闭对话框的代码
-	}
-	else if (nResponse == IDCANCEL)
-	{
+	// }
+	// else if (nResponse == IDCANCEL)
+	// {
 		// TODO: 在此放置处理何时用
 		//  “取消”来关闭对话框的代码
-	}
-	else if (nResponse == -1)
-	{
-		TRACE(traceAppMsg, 0, "警告: 对话框创建失败，应用程序将意外终止。\n");
-		TRACE(traceAppMsg, 0, "警告: 如果您在对话框上使用 MFC 控件，则无法 #define _AFX_NO_MFC_CONTROLS_IN_DIALOGS。\n");
-	}
+	// }
+	// else if (nResponse == -1)
+	// {
+		//TRACE(traceAppMsg, 0, "警告: 对话框创建失败，应用程序将意外终止。\n");
+		// TRACE(traceAppMsg, 0, "警告: 如果您在对话框上使用 MFC 控件，则无法 #define _AFX_NO_MFC_CONTROLS_IN_DIALOGS。\n");
+	// }
 
 }
 
 // 发送消息的函数
-void CMyQQClientDlg::sendMessage(CString& recvname,CString& strText, int st) {
+void CMyQQClientDlg::sendMessage(CString& recvname, CString& sendname,CString& strText, int st) {
 	// 用于发送消息的m_pArchiveOut不为NULL
 	if (m_pArchiveOut != NULL)
 	{
@@ -273,7 +284,9 @@ void CMyQQClientDlg::sendMessage(CString& recvname,CString& strText, int st) {
 		msg.m_strBuf = strText;
 		msg.type = st;
 		msg.recv_name = recvname;
-		// 调用消息对象的系列化函数，发送消息
+		msg.sendname = sendname;
+	
+		// 调用消息对象的序列化函数，发送消息
 		msg.Serialize(*(m_pArchiveOut));
 		// 将CArchive对象中数据强制存储到CSocketFile对象中
 		m_pArchiveOut->Flush();
@@ -317,13 +330,35 @@ void CMyQQClientDlg::ReceiveMsg()
 		//调用消息对象的序列化函数，接收消息
 		msg.Serialize(*m_pArchiveIn);
 		
-		// 如果不存在index窗口，则直接返回
-		if (dlg_index == NULL) {
-			return;
+		UpdateData(TRUE);
+		// 注册成功
+		if (msg.type == 7) {
+			// 不是我的注册消息则不理会
+			if (msg.recv_name != user_name) {
+				return;
+			}
+			AfxMessageBox("注册成功！");
 		}
-
-		// 收到0，为连接成功的消息，则在index窗口列表创建一个好友
-		if (msg.type == 0) {
+		else if (msg.type == 6) {
+			// 不是我的注册消息则不理会
+			if (msg.recv_name != user_name) {
+				return;
+			}
+			else if (msg.recv_name == user_name && msg.sendname == pwd) {
+				AfxMessageBox("注册失败-用户已存在！");
+			}
+		}
+		// 收到8，为连接成功的消息，则在index窗口列表创建一个好友
+		else if (msg.type == 8) {
+			if (dlg_index == NULL) {
+				dlg_index = new Index(this);
+				// 隐藏本窗口
+				ShowWindow(SW_HIDE);
+				// 创建Index对话框
+				dlg_index = new Index(this);
+				INT_PTR nResponse = dlg_index->Create(IDD_INDEX);
+				dlg_index->ShowWindow(SW_SHOWNORMAL);
+			}
 			// 查询是否已经存在该好友
 			for (int i = 0; i < MAX_WINDOW_COUNT; i++) {
 				// 如果和msg的接收方匹配，则直接返回，不创建
@@ -333,16 +368,37 @@ void CMyQQClientDlg::ReceiveMsg()
 			}
 			// 在好友列表插入一个好友，参数1：插入位置索引，参数2：好友用户名，参数3：图片列表的索引
 			dlg_index->frind_list.InsertItem(dlg_index->count_pic,msg.recv_name, dlg_index->count_pic%7);
+			for (int i = 0; i < dlg_index->frind_list.GetItemCount(); i++) {
+				//先检测窗口是否创建,未创建则前往创建；否则直接显示
+				CString chatUserName= dlg_index->frind_list.GetItemText(i, 0);
+				if (dlg_index->m_chatDlg[i] == NULL)
+				{
+					dlg_index->CreateChatDlg(msg.recv_name, chatUserName,i);
+					dlg_index->m_chatDlg[i]->ShowWindow(SW_HIDE);
+				}
+			}
+			//dlg_index->m_chatDlg[0]->ShowWindow(SW_SHOW);
 			// 索引值+1
 			dlg_index->count_pic += 1;
 		}
+		else if (msg.type == 9) {
+			if (msg.recv_name != user_name) {
+				return;
+			}
+			AfxMessageBox("登录失败-密码错误！");
+		}
+		else if (msg.type == 10) {
+			if (msg.recv_name != user_name) {
+				return;
+			}
+			AfxMessageBox("登录失败-用户未注册！");
+		}
 		// 收到1,为普通群聊消息，且已经创建了群聊窗口，则显示群聊消息
 		else if (msg.type == 1&& dlg_index->m_chatDlg[0]!=NULL) {
-			// 显示群聊窗口
-			dlg_index->m_chatDlg[0]->ShowWindow(SW_SHOW);
 			// 添加消息内容
 			dlg_index->m_chatDlg[0]->list_recv.AddString(msg.m_strBuf);
-			UpdateData(FALSE);
+			// 显示群聊窗口
+			dlg_index->m_chatDlg[0]->ShowWindow(SW_SHOW);
 		}
 		// 收到2,为连接断开消息
 		else if (msg.type == 2) {
@@ -365,12 +421,35 @@ void CMyQQClientDlg::ReceiveMsg()
 		}
 		// 收到3，为私聊消息，选择性接收
 		else if (msg.type == 3) {
-			// 查询应该由谁接收
+			// 不是发给我的
+			if (msg.recv_name != user_name||msg.sendname==user_name) {
+				return;
+			}
+			// 查询应该由哪个窗口接收
 			for (int i = 0; i < MAX_WINDOW_COUNT; i++) {
 				// 如果和msg的接收方匹配，则显示消息
-				if (dlg_index->m_chatDlg[i] != NULL && dlg_index->m_chatDlg[i]->frind_name_text == msg.recv_name) {
+				if (dlg_index->m_chatDlg[i] != NULL && dlg_index->m_chatDlg[i]->frind_name_text == msg.sendname) {
 					dlg_index->m_chatDlg[i]->ShowWindow(SW_SHOW);
 					dlg_index->m_chatDlg[i]->list_recv.AddString(msg.m_strBuf);
+					UpdateData(FALSE);
+					break;
+				}
+			}
+		}
+		else if (msg.type == 4) {
+			// 不是发给我的
+			if (msg.recv_name != user_name) {
+				return;
+			}
+			// 查询应该由哪个窗口接收
+			for (int i = 0; i < MAX_WINDOW_COUNT; i++) {
+				// 如果和msg的接收方匹配，则显示消息
+				if (dlg_index->m_chatDlg[i] != NULL && dlg_index->m_chatDlg[i]->frind_name_text == msg.sendname) {
+					CTime tm = CTime::GetCurrentTime();
+					CString tm_str = tm.Format("%X ");
+					dlg_index->m_chatDlg[i]->ShowWindow(SW_SHOW);
+					dlg_index->m_chatDlg[i]->list_recv.AddString(tm_str+"对方抖了抖你");
+					dlg_index->m_chatDlg[i]->Shake(i);
 					UpdateData(FALSE);
 					break;
 				}
@@ -384,4 +463,39 @@ void CMyQQClientDlg::ReceiveMsg()
 		AfxMessageBox("接收消息失败！");
 	}
 	END_CATCH
+}
+
+void CMyQQClientDlg::OnBnClickedButton2()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	UpdateData(TRUE);
+	if (user_name.GetLength() == 0 || pwd.GetLength() == 0) {
+		AfxMessageBox("请完整填写信息！");
+		return;
+	}
+	if (m_pSocket == NULL || m_pFile == NULL) {
+		//创建套接字对象
+		m_pSocket = new CCSocket(this);
+		// 创建套接字对象的底层套接字
+		if (!m_pSocket->Create())
+		{
+			delete m_pSocket;    //错误处理
+			m_pSocket = NULL;
+			AfxMessageBox("套接字创建错误！");
+			return;
+		}
+		if (!m_pSocket->Connect(server_addr, server_port))
+		{
+			delete m_pSocket;    //错误处理
+			m_pSocket = NULL;
+			AfxMessageBox("无法连接服务器错误！");
+			return;
+		}
+		// 创建CSocketFile类对象
+		m_pFile = new CSocketFile(m_pSocket);
+		//分别创建用于输入和用于输出的CArchive类对象
+		m_pArchiveIn = new CArchive(m_pFile, CArchive::load);
+		m_pArchiveOut = new CArchive(m_pFile, CArchive::store);
+	}
+	sendMessage(user_name, pwd, user_name, 5);
 }

@@ -14,6 +14,7 @@ public:
 	// 支持窗口拖动
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 
+
 // 对话框数据
 #ifdef AFX_DESIGN_TIME
 	enum { IDD = IDD_CHAT_DLG };
@@ -35,8 +36,12 @@ public:
 	int i_index;
 	afx_msg void OnBnClickedBtnChatOff();
 	afx_msg void OnBnClickedBtnSend();
+	// 窗口抖动函数
+	void Shake(int window_index);
 	// 左上角用于标识好友名
 	CStatic friend_name;
 	// 好友用户名
 	CString frind_name_text;
+	afx_msg void OnBnClickedButton1();
+	afx_msg void OnBnClickedBtnCancel();
 };

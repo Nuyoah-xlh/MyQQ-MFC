@@ -3,6 +3,7 @@
 //
 #include "CLSocket.h"
 #include "CCSocket.h"
+#include "User.h"
 
 #pragma once
 
@@ -41,6 +42,10 @@ public:
 	CLSocket* m_pLSocket; 
 	// 已连接列表
 	CPtrList m_connList;  
+
+	// 用户登录信息
+	User* users[200];
+	int index;
 
 	// 接受客户机的连接请求
 	void OnAccept();

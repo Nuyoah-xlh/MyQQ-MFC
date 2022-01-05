@@ -39,14 +39,16 @@
 #define IDC_BTN_CHAT_OFF                1031
 #define IDC_BUTTON_HEAD                 1032
 #define IDC_INDEX_HEAD                  1033
+#define IDC_EDIT1                       1034
+#define IDC_PWD                         1034
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        172
+#define _APS_NEXT_RESOURCE_VALUE        173
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1034
+#define _APS_NEXT_CONTROL_VALUE         1035
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

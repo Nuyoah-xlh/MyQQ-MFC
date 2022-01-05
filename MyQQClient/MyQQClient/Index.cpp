@@ -19,6 +19,8 @@ Index::Index( CMyQQClientDlg* qq_dlg, CWnd* pParent /*=nullptr*/)
 	// 接收父窗口指针
 	main_dlg = qq_dlg;
 	count_pic = 1;
+	// 加载程序图标
+	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 	// 聊天窗口初始化
 	for (int i = 0; i < MAX_WINDOW_COUNT; i++) {
 		m_chatDlg[i] = NULL;
@@ -69,6 +71,10 @@ BOOL Index::OnInitDialog()
 
 	// index初始化
 	InitIndex();
+
+	SetIcon(m_hIcon, TRUE);			// 设置大图标
+	SetIcon(m_hIcon, FALSE);		// 设置小图标
+
 	// 设置本人头像
 	HBITMAP   hBitmap;
 	hBitmap = LoadBitmap(AfxGetInstanceHandle(),
@@ -131,8 +137,8 @@ void Index::OnCancel()
 }
 
 // 调用父窗口的发送消息函数
-void Index::sendMessage(CString& recvname, CString& strText, int st) {
-	main_dlg->sendMessage(recvname,strText, st);
+void Index::sendMessage(CString& recvname, CString& sendname, CString& strText, int st) {
+	main_dlg->sendMessage(recvname,sendname,strText, st);
 }
 
 // 创建聊天窗口
@@ -194,7 +200,7 @@ void Index::OnBnClickedButton1()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	// 发送关闭连接类型的消息
-	sendMessage(main_dlg->user_name, main_dlg->user_name, 2);
+	sendMessage(main_dlg->user_name, main_dlg->user_name, main_dlg->user_name, 2);
 	// 销毁本窗口的相关资源
 	main_dlg->destory();   
 	//DestroyWindow();        
